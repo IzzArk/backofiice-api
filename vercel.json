@@ -12,12 +12,6 @@
             "dest": "/api/index.php"
         }
     ],
-    "builds": [
-        {
-            "src": "artisan",
-            "use": "@vercel/php"
-        }
-    ],
     "public": true,
     "outputDirectory": "public",
     "env": {

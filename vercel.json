@@ -12,6 +12,8 @@
             "dest": "/api/index.php"
         }
     ],
+    "public": true,
+    "outputDirectory": "public",
     "env": {
         "APP_ENV": "production",
         "APP_DEBUG": "true",
@@ -25,6 +27,11 @@
         "VIEW_COMPILED_PATH": "/tmp",
         "CACHE_DRIVER": "array",
         "LOG_CHANNEL": "stderr",
-        "SESSION_DRIVER": "cookie"
+        "SESSION_DRIVER": "cookie",
+        "DB_CONNECTION": "mysql",
+        "DB_HOST": "sql12.freesqldatabase.com",
+        "DB_PORT": "3306",
+        "DB_DATABASE": "sql12754675",
+        "DB_USERNAME": "sql12754675"
     }
 }

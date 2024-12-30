@@ -60,4 +60,9 @@ class User extends Authenticatable
         }
         return $roleBadges;
     }
+
+    public function attendances()
+    {
+        return $this->hasMany(Attendance::class);
+    }
 }

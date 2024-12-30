@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\AttendanceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -26,3 +27,7 @@ Route::middleware('auth.token')->group(function () {
 Route::apiResource('users', UserController::class);
 Route::post('login', [AuthController::class, 'login']);
 Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+
+
+Route::get('/attendances', [AttendanceController::class, 'index']);
+Route::post('/attendance', [AttendanceController::class, 'store']);

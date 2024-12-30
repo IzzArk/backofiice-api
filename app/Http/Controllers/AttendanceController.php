@@ -57,8 +57,24 @@ class AttendanceController extends Controller
     {
         $attendances = Attendance::with('user:id,name')->get();
 
-        return response()->json([
-            'data' => $attendances,
-        ], 200);
+        // Format data menjadi array
+        $formattedAttendances = $attendances->map(function ($attendance) {
+            return [
+                'id' => $attendance->id,
+                'user' => [
+                    'id' => $attendance->user->id,
+                    'name' => $attendance->user->name,
+                ],
+                'location' => $attendance->location,
+                'image_path' => $attendance->image_path,
+                'status' => $attendance->status,
+                'checked_in_at' => $attendance->checked_in_at,
+                'created_at' => $attendance->created_at,
+                'updated_at' => $attendance->updated_at,
+            ];
+        });
+
+        // Langsung kembalikan array tanpa pembungkus 'data'
+        return response()->json($formattedAttendances->toArray(), 200);
     }
 }

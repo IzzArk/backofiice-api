@@ -77,4 +77,13 @@ class AttendanceController extends Controller
         // Langsung kembalikan array tanpa pembungkus 'data'
         return response()->json($formattedAttendances->toArray(), 200);
     }
+
+    public function getAttendanceByUserId($userId)
+    {
+        $attendances = Attendance::with('user:id,name')
+            ->where('user_id', $userId)
+            ->get();
+
+        return response()->json($attendances, 200);
+    }
 }

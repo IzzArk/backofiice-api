@@ -30,4 +30,5 @@ Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanct
 
 
 Route::get('/attendances', [AttendanceController::class, 'index']);
+Route::get('/attendances/user/{id}', [AttendanceController::class, 'getAttendanceByUserId']);
 Route::post('/attendance', [AttendanceController::class, 'store']);

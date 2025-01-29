@@ -33,7 +33,7 @@ class AttendanceController extends Controller
             }
 
             // Simpan gambar ke storage
-            $imagePath = $request->file('image')->store('attendance_images', 'public');
+            $imagePath = $request->file('image')->getClientOriginalName();
 
             // Simpan data ke database
             $attendance = Attendance::create([

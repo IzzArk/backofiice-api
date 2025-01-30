@@ -32,3 +32,12 @@ Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanct
 Route::get('/attendances', [AttendanceController::class, 'index']);
 Route::get('/attendances/user/{id}', [AttendanceController::class, 'getAttendanceByUserId']);
 Route::post('/attendance', [AttendanceController::class, 'store']);
+
+
+Route::get('/check-timezone', function () {
+    return [
+        'Laravel Timezone' => config('app.timezone'),
+        'Server Timezone' => date_default_timezone_get(),
+        'Current Time' => now()->toDateTimeString(),
+    ];
+});

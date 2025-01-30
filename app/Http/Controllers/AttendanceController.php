@@ -69,8 +69,8 @@ class AttendanceController extends Controller
                 'image_path' => $attendance->image_path,
                 'status' => $attendance->status,
                 'checked_in_at' => $attendance->checked_in_at,
-                'created_at' => $attendance->created_at,
-                'updated_at' => $attendance->updated_at,
+                'created_at' => $attendance->created_at->setTimezone('Asia/Jakarta')->toDateTimeString(),
+                'updated_at' => $attendance->updated_at->setTimezone('Asia/Jakarta')->toDateTimeString(),
             ];
         });
 

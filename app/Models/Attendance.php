@@ -14,7 +14,8 @@ class Attendance extends Model
         'image_path',
         'location',
         'status',
-        'checked_in',
+        'checked_in_at',
+        'checked_out_at',
     ];
 
     public function user()

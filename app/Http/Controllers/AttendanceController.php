@@ -114,4 +114,39 @@ class AttendanceController extends Controller
 
         return response()->json($attendances, 200);
     }
+
+    public function show($id)
+    {
+        $attendance = Attendance::with('user:id,name')->find($id);
+
+        if (!$attendance) {
+            return response()->json([
+                'message' => 'Data absensi tidak ditemukan'
+            ], 404);
+        }
+
+        $checkedInAt = $attendance->checked_in_at ? Carbon::parse($attendance->checked_in_at)->setTimezone('Asia/Jakarta')->toISOString() : null;
+        $checkedOutAt = $attendance->checked_out_at ? Carbon::parse($attendance->checked_out_at)->setTimezone('Asia/Jakarta')->toISOString() : null;
+
+        return response()->json([
+            'message' => 'Data absensi berhasil diambil',
+            'data' => [
+                'id' => $attendance->id,
+                'user' => [
+                    'id' => $attendance->user->id,
+                    'name' => $attendance->user->name,
+                ],
+                'location' => $attendance->location,
+                'image_path' => $attendance->image_path,
+                'status' => $attendance->status,
+                'checked_in_at' => $checkedInAt,
+                'checked_out_at' => $checkedOutAt,
+                'duration' => ($checkedInAt && $checkedOutAt)
+                    ? Carbon::parse($attendance->checked_in_at)->diff(Carbon::parse($attendance->checked_out_at))->format('%h hours %i minutes')
+                    : null,
+                'created_at' => Carbon::parse($attendance->created_at)->setTimezone('Asia/Jakarta')->toISOString(),
+                'updated_at' => Carbon::parse($attendance->updated_at)->setTimezone('Asia/Jakarta')->toISOString()
+            ]
+        ], 200);
+    }
 }

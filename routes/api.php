@@ -32,6 +32,7 @@ Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:sanct
 Route::get('/attendances', [AttendanceController::class, 'index']);
 Route::get('/attendances/user/{id}', [AttendanceController::class, 'getAttendanceByUserId']);
 Route::post('/attendance', [AttendanceController::class, 'store']);
+Route::get('attendances/{id}', [AttendanceController::class, 'show']);
 
 
 Route::get('/check-timezone', function () {

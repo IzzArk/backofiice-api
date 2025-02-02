@@ -131,10 +131,34 @@ class AttendanceController extends Controller
     {
         $attendances = Attendance::with('user:id,name')
             ->where('user_id', $userId)
-            ->get();
+            ->get()
+            ->map(function ($attendance) {
+                return [
+                    'id' => $attendance->id,
+                    'user_id' => $attendance->user_id,
+                    'image_path' => $attendance->image_path,
+                    'location' => $attendance->location,
+                    'status' => $attendance->status,
+                    'status_check_in' => $attendance->status_check_in,
+                    'status_check_out' => $attendance->status_check_out,
+                    'checked_in_at' => $attendance->checked_in_at
+                        ? Carbon::parse($attendance->checked_in_at)->setTimezone('Asia/Jakarta')->toISOString()
+                        : null,
+                    'checked_out_at' => $attendance->checked_out_at
+                        ? Carbon::parse($attendance->checked_out_at)->setTimezone('Asia/Jakarta')->toISOString()
+                        : null,
+                    'created_at' => Carbon::parse($attendance->created_at)->setTimezone('Asia/Jakarta')->toISOString(),
+                    'updated_at' => Carbon::parse($attendance->updated_at)->setTimezone('Asia/Jakarta')->toISOString(),
+                    'user' => [
+                        'id' => $attendance->user->id,
+                        'name' => $attendance->user->name,
+                    ],
+                ];
+            });
 
         return response()->json($attendances, 200);
     }
+
 
     public function show($id)
     {

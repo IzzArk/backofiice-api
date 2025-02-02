@@ -160,11 +160,13 @@ class AttendanceController extends Controller
                 'location' => $attendance->location,
                 'image_path' => $attendance->image_path,
                 'status' => $attendance->status,
+                'status_check_in' => $attendance->status_check_in,
+                'status_check_out' => $attendance->status_check_out,
                 'checked_in_at' => $checkedInAt,
                 'checked_out_at' => $checkedOutAt,
                 'duration' => ($checkedInAt && $checkedOutAt)
-                    ? Carbon::parse($attendance->checked_in_at)->diff(Carbon::parse($attendance->checked_out_at))->format('%h Jam %i Menit')
-                    : null,
+                    ? Carbon::parse($attendance->checked_in_at)->diff(Carbon::parse($attendance->checked_out_at))->format('%h hours %i minutes')
+                    : null, // Hitung durasi kerja
                 'created_at' => Carbon::parse($attendance->created_at)->setTimezone('Asia/Jakarta')->toISOString(),
                 'updated_at' => Carbon::parse($attendance->updated_at)->setTimezone('Asia/Jakarta')->toISOString()
             ]

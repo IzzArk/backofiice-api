@@ -18,7 +18,7 @@ class AttendanceController extends Controller
             $request->validate([
                 'user_id' => 'required|exists:users,id',
                 'location' => 'required|string',
-                'image' => 'required|image|max:2048', // maksimal 2 MB
+                'image' => 'required|image|max:2048', // Maksimal 2 MB
             ]);
 
             $userId = $request->user_id;
@@ -31,11 +31,26 @@ class AttendanceController extends Controller
                 ->first();
 
             if ($attendance) {
-                // Jika sudah absen masuk, maka update sebagai absen pulang
+                // Jika sudah absen masuk, update sebagai absen pulang
                 if (!$attendance->checked_out_at) {
+                    $checkoutTime = $currentTime->format('H:i');
+                    $status_checkout = ($checkoutTime <= '17:00') ? 'on-time' : 'overtime';
+
+                    // Hitung durasi kerja
+                    $checkinTime = Carbon::parse($attendance->checked_in_at);
+                    $workDuration = $checkinTime->diffInHours($currentTime);
+
+                    // Status default
+                    $status = null;
+                    if ($workDuration > 9) {
+                        $status = 'lembur'; // Jika kerja lebih dari 9 jam, update status
+                    }
+
+                    // Update data absen
                     $attendance->update([
                         'checked_out_at' => $currentTime,
-                        'status' => 'hadir', // bisa disesuaikan dengan kondisi lain
+                        'status_check_out' => $status_checkout,
+                        'status' => $status, // Update status jika lembur
                     ]);
 
                     return response()->json([
@@ -48,8 +63,11 @@ class AttendanceController extends Controller
                     ], 400);
                 }
             } else {
-                // Jika belum absen masuk, maka simpan absen masuk
-                $status = ($currentTime->format('H:i') <= '08:00') ? 'on-time' : 'late';
+                // Jika belum absen masuk, simpan absen masuk
+                $checkinTime = $currentTime->format('H:i');
+                $status_checkin = ($checkinTime <= '08:00') ? 'on-time' : 'late';
+
+                // $imagePath = $request->file('image')->store('attendance_images', 'public');
                 $imagePath = $request->file('image')->getClientOriginalName();
 
                 $attendance = Attendance::create([
@@ -57,7 +75,7 @@ class AttendanceController extends Controller
                     'location' => $request->location,
                     'image_path' => $imagePath,
                     'checked_in_at' => $currentTime,
-                    'status' => $status,
+                    'status_check_in' => $status_checkin,
                 ]);
 
                 return response()->json([
@@ -69,6 +87,7 @@ class AttendanceController extends Controller
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }
+
 
     public function index()
     {
@@ -88,6 +107,8 @@ class AttendanceController extends Controller
                 'location' => $attendance->location,
                 'image_path' => $attendance->image_path,
                 'status' => $attendance->status,
+                'status_check_in' => $attendance->status_check_in,
+                'status_check_out' => $attendance->status_check_out,
                 'checked_in_at' => $checkedInAt,
                 'checked_out_at' => $checkedOutAt,
                 'duration' => ($checkedInAt && $checkedOutAt)
@@ -142,7 +163,7 @@ class AttendanceController extends Controller
                 'checked_in_at' => $checkedInAt,
                 'checked_out_at' => $checkedOutAt,
                 'duration' => ($checkedInAt && $checkedOutAt)
-                    ? Carbon::parse($attendance->checked_in_at)->diff(Carbon::parse($attendance->checked_out_at))->format('%h hours %i minutes')
+                    ? Carbon::parse($attendance->checked_in_at)->diff(Carbon::parse($attendance->checked_out_at))->format('%h Jam %i Menit')
                     : null,
                 'created_at' => Carbon::parse($attendance->created_at)->setTimezone('Asia/Jakarta')->toISOString(),
                 'updated_at' => Carbon::parse($attendance->updated_at)->setTimezone('Asia/Jakarta')->toISOString()

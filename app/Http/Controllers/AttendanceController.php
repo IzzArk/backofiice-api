@@ -127,37 +127,47 @@ class AttendanceController extends Controller
 
 
 
-    public function getAttendanceByUserId($userId)
+    public function getAttendanceByUserId($userId, Request $request)
     {
-        $attendances = Attendance::with('user:id,name')
-            ->where('user_id', $userId)
-            ->get()
-            ->map(function ($attendance) {
-                return [
-                    'id' => $attendance->id,
-                    'user_id' => $attendance->user_id,
-                    'image_path' => $attendance->image_path,
-                    'location' => $attendance->location,
-                    'status' => $attendance->status,
-                    'status_check_in' => $attendance->status_check_in,
-                    'status_check_out' => $attendance->status_check_out,
-                    'checked_in_at' => $attendance->checked_in_at
-                        ? Carbon::parse($attendance->checked_in_at)->setTimezone('Asia/Jakarta')->toISOString()
-                        : null,
-                    'checked_out_at' => $attendance->checked_out_at
-                        ? Carbon::parse($attendance->checked_out_at)->setTimezone('Asia/Jakarta')->toISOString()
-                        : null,
-                    'created_at' => Carbon::parse($attendance->created_at)->setTimezone('Asia/Jakarta')->toISOString(),
-                    'updated_at' => Carbon::parse($attendance->updated_at)->setTimezone('Asia/Jakarta')->toISOString(),
-                    'user' => [
-                        'id' => $attendance->user->id,
-                        'name' => $attendance->user->name,
-                    ],
-                ];
-            });
+        $query = Attendance::with('user:id,name')->where('user_id', $userId);
+
+        // Ambil parameter filter dari query string
+        $filter = $request->query('filter');
+
+        if ($filter === 'weekly') {
+            $query->whereBetween('checked_in_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
+        } elseif ($filter === 'monthly') {
+            $query->whereMonth('checked_in_at', Carbon::now()->month)
+                ->whereYear('checked_in_at', Carbon::now()->year);
+        }
+
+        $attendances = $query->get()->map(function ($attendance) {
+            return [
+                'id' => $attendance->id,
+                'user_id' => $attendance->user_id,
+                'image_path' => $attendance->image_path,
+                'location' => $attendance->location,
+                'status' => $attendance->status,
+                'status_check_in' => $attendance->status_check_in,
+                'status_check_out' => $attendance->status_check_out,
+                'checked_in_at' => $attendance->checked_in_at
+                    ? Carbon::parse($attendance->checked_in_at)->setTimezone('Asia/Jakarta')->toISOString()
+                    : null,
+                'checked_out_at' => $attendance->checked_out_at
+                    ? Carbon::parse($attendance->checked_out_at)->setTimezone('Asia/Jakarta')->toISOString()
+                    : null,
+                'created_at' => Carbon::parse($attendance->created_at)->setTimezone('Asia/Jakarta')->toISOString(),
+                'updated_at' => Carbon::parse($attendance->updated_at)->setTimezone('Asia/Jakarta')->toISOString(),
+                'user' => [
+                    'id' => $attendance->user->id,
+                    'name' => $attendance->user->name,
+                ],
+            ];
+        });
 
         return response()->json($attendances, 200);
     }
+
 
 
     public function show($id)

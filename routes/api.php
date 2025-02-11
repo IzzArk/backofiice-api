@@ -3,6 +3,7 @@
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\UserController;
 use App\Http\Controllers\AttendanceController;
+use App\Http\Controllers\NotificationController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -33,6 +34,12 @@ Route::get('/attendances', [AttendanceController::class, 'index']);
 Route::get('/attendances/user/{id}', [AttendanceController::class, 'getAttendanceByUserId']);
 Route::post('/attendance', [AttendanceController::class, 'store']);
 Route::get('attendances/{id}', [AttendanceController::class, 'show']);
+
+
+Route::get('/notification', [NotificationController::class, 'index']);
+Route::get('/notification/user/{user_id}', [NotificationController::class, 'getByUserId']);
+
+
 
 
 Route::get('/check-timezone', function () {

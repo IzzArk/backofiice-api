@@ -40,6 +40,7 @@ class AuthController extends Controller
                 'name' => $user->name,
                 'alias' => $user->alias,
                 'email' => $user->email,
+                'image' => $user->image,
                 'roles' => $user->roles->map(function ($role) {
                     return [
                         'id' => $role->id,

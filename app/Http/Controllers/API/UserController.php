@@ -29,6 +29,7 @@ class UserController extends Controller
                         'name' => $role->name,
                     ];
                 }),
+                'image' => $user->image,
             ];
         });
 

@@ -67,26 +67,37 @@ class AttendanceController extends Controller
                 $checkinTime = $currentTime->format('H:i');
                 $status_checkin = ($checkinTime <= '08:00') ? 'on-time' : 'late';
 
-                // $imagePath = $request->file('image')->store('attendance_images', 'public');
-                $imagePath = $request->file('image')->getClientOriginalName();
+                // Upload gambar ke Google Drive
+                if ($request->hasFile('image')) {
+                    $image = $request->file('image');
+                    $imageName = time() . '_' . $image->getClientOriginalName();
+                    $path = Storage::disk('google')->putFileAs('', $image, $imageName);
+                    $imageUrl = Storage::disk('google')->url($path); // Dapatkan URL file
 
-                $attendance = Attendance::create([
-                    'user_id' => $userId,
-                    'location' => $request->location,
-                    'image_path' => $imagePath,
-                    'checked_in_at' => $currentTime,
-                    'status_check_in' => $status_checkin,
-                ]);
+                    // Simpan data absensi
+                    $attendance = Attendance::create([
+                        'user_id' => $userId,
+                        'location' => $request->location,
+                        'image_path' => $imageUrl, // Simpan URL file
+                        'checked_in_at' => $currentTime,
+                        'status_check_in' => $status_checkin,
+                    ]);
 
-                return response()->json([
-                    'message' => 'Absen masuk berhasil',
-                    'data' => $attendance,
-                ], 201);
+                    return response()->json([
+                        'message' => 'Absen masuk berhasil',
+                        'data' => $attendance,
+                    ], 201);
+                } else {
+                    return response()->json([
+                        'message' => 'Gambar tidak ditemukan, upload gagal!',
+                    ], 400);
+                }
             }
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }
+
 
 
     public function index()

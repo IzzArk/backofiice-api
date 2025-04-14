@@ -46,8 +46,15 @@ class AttendanceController extends Controller
                         $status = 'lembur'; // Jika kerja lebih dari 9 jam, update status
                     }
 
+                    // Upload gambar check-out
+                    $image = $request->file('image');
+                    $imageName = time() . '_' . $image->getClientOriginalName();
+                    $path = Storage::disk('google')->putFileAs('', $image, $imageName);
+                    $imageCheckOutUrl = Storage::disk('google')->url($path);
+
                     // Update data absen
                     $attendance->update([
+                        'image_check_out' => $imageCheckOutUrl,
                         'checked_out_at' => $currentTime,
                         'status_check_out' => $status_checkout,
                         'status' => $status, // Update status jika lembur
@@ -117,6 +124,7 @@ class AttendanceController extends Controller
                 ],
                 'location' => $attendance->location,
                 'image_path' => $attendance->image_path,
+                'image_check_out' => $attendance->image_check_out,
                 'status' => $attendance->status,
                 'status_check_in' => $attendance->status_check_in,
                 'status_check_out' => $attendance->status_check_out,
@@ -157,6 +165,7 @@ class AttendanceController extends Controller
                 'id' => $attendance->id,
                 'user_id' => $attendance->user_id,
                 'image_path' => $attendance->image_path,
+                'image_check_out' => $attendance->image_check_out,
                 'location' => $attendance->location,
                 'status' => $attendance->status,
                 'status_check_in' => $attendance->status_check_in,
@@ -204,6 +213,7 @@ class AttendanceController extends Controller
                 ],
                 'location' => $attendance->location,
                 'image_path' => $attendance->image_path,
+                'image_check_out' => $attendance->image_check_out,
                 'status' => $attendance->status,
                 'status_check_in' => $attendance->status_check_in,
                 'status_check_out' => $attendance->status_check_out,

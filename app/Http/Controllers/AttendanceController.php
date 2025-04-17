@@ -153,12 +153,15 @@ class AttendanceController extends Controller
         // Ambil parameter filter dari query string
         $filter = $request->query('filter');
 
-        if ($filter === 'weekly') {
+        if ($filter === 'daily') {
+            $query->whereDate('checked_in_at', Carbon::now()->toDateString());
+        } elseif ($filter === 'weekly') {
             $query->whereBetween('checked_in_at', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()]);
         } elseif ($filter === 'monthly') {
             $query->whereMonth('checked_in_at', Carbon::now()->month)
                 ->whereYear('checked_in_at', Carbon::now()->year);
         }
+
 
         $attendances = $query->get()->map(function ($attendance) {
             return [

@@ -8,19 +8,30 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
     /**
      * Handle user login.
      */
+
     public function login(Request $request)
     {
         try {
-            $credentials = $request->validate([
+            $validator = Validator::make($request->all(), [
                 'email' => 'required|email',
                 'password' => 'required|string|min:6',
             ]);
+
+            if ($validator->fails()) {
+                // Ambil pesan pertama dari error validasi
+                return response()->json([
+                    'message' => $validator->errors()->first()
+                ], 400);
+            }
+
+            $credentials = $request->only('email', 'password');
 
             $user = User::with('roles')->where('email', $credentials['email'])->first();
 
@@ -41,13 +52,11 @@ class AuthController extends Controller
                 'alias' => $user->alias,
                 'email' => $user->email,
                 'image' => $user->image,
-                'roles' => $user->roles->map(function ($role) {
-                    return [
-                        'id' => $role->id,
-                        'name' => $role->name,
-                    ];
-                }),
-                'token' => $token, // Sertakan token di response
+                'roles' => $user->roles->map(fn($role) => [
+                    'id' => $role->id,
+                    'name' => $role->name,
+                ]),
+                'token' => $token,
             ];
 
             return response()->json([
@@ -58,6 +67,7 @@ class AuthController extends Controller
             return response()->json(['message' => $e->getMessage()], 500);
         }
     }
+
 
 
 

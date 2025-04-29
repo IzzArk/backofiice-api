@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
 use App\Models\Attendance;
 use App\Models\User;
+use Illuminate\Validation\ValidationException;
+
 
 class AttendanceController extends Controller
 {
@@ -100,11 +102,20 @@ class AttendanceController extends Controller
                     ], 400);
                 }
             }
-        } catch (\Exception $e) {
-            return response()->json(['message' => $e->getMessage()], 500);
+        } catch (ValidationException $e) {
+            $errors = $e->validator->errors();
+
+            if ($errors->has('image') && str_contains($errors->first('image'), 'greater than')) {
+                return response()->json([
+                    'message' => 'Ukuran gambar terlalu besar.',
+                ], 422);
+            }
+
+            return response()->json([
+                'message' => $errors->first(),
+            ], 422);
         }
     }
-
 
 
     public function index()
